@@ -1,5 +1,6 @@
 import mysql.connector
 
+
 def connect_db():
     return mysql.connector.connect(
         host="localhost",
@@ -7,50 +8,71 @@ def connect_db():
         database="test_db",
     )
 
+
 def create_table(conn):
     cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(100),
-            birthday DATE,
-            gender VARCHAR(10),
-            fetish TEXT
-        )
-    """)
-    conn.commit()
+    try:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(100),
+                birthday DATE,
+                gender VARCHAR(10),
+                fetish TEXT
+            )
+        """)
+        conn.commit()
+    finally:
+        cursor.close()
+
 
 def add_user(conn, name, birthday, gender, fetish):
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM users WHERE name = %s AND birthday = %s", (name, birthday))
-    if cursor.fetchone():
-        print("User with this name and birthday already exists. Skipping insert.")
-        return
+    try:
+        # Важно: LIMIT 1, чтобы не оставлять непрочитанные строки
+        cursor.execute(
+            "SELECT 1 FROM users WHERE name = %s AND birthday = %s LIMIT 1",
+            (name, birthday)
+        )
+        exists = cursor.fetchone()
+        if exists:
+            print("User with this name and birthday already exists. Skipping insert.")
+            return
 
-    cursor.execute(
-        "INSERT INTO users (name, birthday, gender, fetish) VALUES (%s, %s, %s, %s)",
-        (name, birthday, gender, fetish)
-    )
-    conn.commit()
-    print(f"User '{name}' added.")
+        cursor.execute(
+            "INSERT INTO users (name, birthday, gender, fetish) VALUES (%s, %s, %s, %s)",
+            (name, birthday, gender, fetish)
+        )
+        conn.commit()
+        print(f"User '{name}' added.")
+    finally:
+        cursor.close()
+
 
 def delete_user(conn, user_id):
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
-    conn.commit()
-    print(f"User with ID {user_id} deleted.")
+    try:
+        cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
+        conn.commit()
+        print(f"User with ID {user_id} deleted.")
+    finally:
+        cursor.close()
+
 
 def view_users(conn):
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users")
-    rows = cursor.fetchall()
+    try:
+        cursor.execute("SELECT * FROM users")
+        rows = cursor.fetchall()
+    finally:
+        cursor.close()
 
     print(f"{'ID':<3} {'Name':<25} {'Birthday':<12} {'Gender':<8} {'Fetish'}")
     print("-" * 60)
-    for row in rows:
-        user_id, name, birthday, gender, fetish = row
+    for user_id, name, birthday, gender, fetish in rows:
         print(f"{user_id:<3} {name:<25} {birthday} {gender:<8} {fetish}")
     print()
+
 
 def main():
     conn = connect_db()
@@ -82,6 +104,7 @@ def main():
                 print("Invalid choice")
     finally:
         conn.close()
+
 
 if __name__ == "__main__":
     main()

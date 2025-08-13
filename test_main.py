@@ -1,4 +1,4 @@
-from main import create_table, add_user
+from main import add_user, delete_user
 import pytest
 
 @pytest.mark.parametrize("name, birthday, gender, fetish", [
@@ -8,15 +8,23 @@ import pytest
     ("LongNameUserThatIsReallyReallyLong", "1970-07-07", "Male", "some fetish text here"),
 ])
 def test_add_user(db_connection, name, birthday, gender, fetish):
+    # 1. Добавляем пользователя
     add_user(db_connection, name, birthday, gender, fetish)
 
+    # 2. Достаём этого пользователя из базы
     cursor = db_connection.cursor()
-    cursor.execute("SELECT name, birthday, gender, fetish FROM users WHERE name = %s", (name,))
+    cursor.execute(
+        "SELECT name, birthday, gender, fetish FROM users WHERE name = %s",
+        (name,)
+    )
     row = cursor.fetchone()
-    
-    # Проверяем, что данные записались и совпадают
+
+    # 3. Проверяем каждое поле по отдельности
     assert row is not None
-    assert row[0] == name
-    assert str(row[1]) == birthday  # birthday в базе - date, приводим к строке
-    assert row[2] == gender
-    assert row[3] == fetish
+    assert row[0] == name            # имя
+    assert str(row[1]) == birthday   # дата (привели к строке)
+    assert row[2] == gender          # пол
+    assert row[3] == fetish          # фетиш
+
+
+
