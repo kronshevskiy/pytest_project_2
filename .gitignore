@@ -1,0 +1,15 @@
+# Python кэш
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Виртуальное окружение
+.venv/
+
+# Pytest кеш
+.pytest_cache/
+
+# macOS мусор
+.DS_Store
+
