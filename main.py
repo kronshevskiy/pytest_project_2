@@ -1,13 +1,11 @@
 import mysql.connector
 
-
 def connect_db():
     return mysql.connector.connect(
         host="localhost",
         user="test_user",
         database="test_db",
     )
-
 
 def create_table(conn):
     cursor = conn.cursor()
@@ -18,18 +16,16 @@ def create_table(conn):
                 name VARCHAR(100),
                 birthday DATE,
                 gender VARCHAR(10),
-                fetish TEXT
+                preference TEXT
             )
         """)
         conn.commit()
     finally:
         cursor.close()
 
-
-def add_user(conn, name, birthday, gender, fetish):
+def add_user(conn, name, birthday, gender, preference):
     cursor = conn.cursor()
     try:
-        # Важно: LIMIT 1, чтобы не оставлять непрочитанные строки
         cursor.execute(
             "SELECT 1 FROM users WHERE name = %s AND birthday = %s LIMIT 1",
             (name, birthday)
@@ -40,14 +36,13 @@ def add_user(conn, name, birthday, gender, fetish):
             return
 
         cursor.execute(
-            "INSERT INTO users (name, birthday, gender, fetish) VALUES (%s, %s, %s, %s)",
-            (name, birthday, gender, fetish)
+            "INSERT INTO users (name, birthday, gender, preference) VALUES (%s, %s, %s, %s)",
+            (name, birthday, gender, preference)
         )
         conn.commit()
         print(f"User '{name}' added.")
     finally:
         cursor.close()
-
 
 def delete_user(conn, user_id):
     cursor = conn.cursor()
@@ -58,7 +53,6 @@ def delete_user(conn, user_id):
     finally:
         cursor.close()
 
-
 def view_users(conn):
     cursor = conn.cursor()
     try:
@@ -67,12 +61,11 @@ def view_users(conn):
     finally:
         cursor.close()
 
-    print(f"{'ID':<3} {'Name':<25} {'Birthday':<12} {'Gender':<8} {'Fetish'}")
+    print(f"{'ID':<3} {'Name':<25} {'Birthday':<12} {'Gender':<8} {'Preference'}")
     print("-" * 60)
-    for user_id, name, birthday, gender, fetish in rows:
-        print(f"{user_id:<3} {name:<25} {birthday} {gender:<8} {fetish}")
+    for user_id, name, birthday, gender, preference in rows:
+        print(f"{user_id:<3} {name:<25} {birthday} {gender:<8} {preference}")
     print()
-
 
 def main():
     conn = connect_db()
@@ -85,9 +78,9 @@ def main():
                 name = input("Name: ").strip()
                 birthday = input("Birthday (YYYY-MM-DD): ").strip()
                 gender = input("Gender: ").strip()
-                fetish = input("Fetish: ").strip()
+                preference = input("Preference: ").strip()
                 if name and birthday and gender:
-                    add_user(conn, name, birthday, gender, fetish)
+                    add_user(conn, name, birthday, gender, preference)
                 else:
                     print("Name, Birthday and Gender are required.")
             elif choice == '2':
@@ -104,7 +97,6 @@ def main():
                 print("Invalid choice")
     finally:
         conn.close()
-
 
 if __name__ == "__main__":
     main()

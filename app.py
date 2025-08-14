@@ -15,14 +15,14 @@ def index():
         name = request.form.get('name', '').strip()
         birthday = request.form.get('birthday', '').strip()
         gender = request.form.get('gender', '').strip()
-        fetish = request.form.get('fetish', '').strip()
+        preference = request.form.get('preference', '').strip()
 
         if name and birthday and gender:
-            add_user(conn, name, birthday, gender, fetish)
+            add_user(conn, name, birthday, gender, preference)
         return redirect(url_for('index'))
 
     cursor = conn.cursor()
-    cursor.execute("SELECT id, name, birthday, gender, fetish FROM users")
+    cursor.execute("SELECT id, name, birthday, gender, preference FROM users")
     users = cursor.fetchall()
     conn.close()
 
@@ -36,13 +36,13 @@ def index():
         <input name="name" placeholder="Name" required>
         <input name="birthday" type="date" placeholder="Birthday" required>
         <input name="gender" placeholder="Gender" required>
-        <input name="fetish" placeholder="Fetish">
+        <input name="preference" placeholder="Preference">
         <button type="submit">Add</button>
       </form>
 
-            <table border="1" cellpadding="5" cellspacing="0">
+      <table border="1" cellpadding="5" cellspacing="0">
         <tr>
-          <th>ID</th><th>Name</th><th>Birthday</th><th>Gender</th><th>Fetish</th><th>Delete</th>
+          <th>ID</th><th>Name</th><th>Birthday</th><th>Gender</th><th>Preference</th><th>Delete</th>
         </tr>
         {% for user in users %}
         <tr>
