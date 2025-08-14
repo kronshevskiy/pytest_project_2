@@ -24,7 +24,7 @@ def test_add_user(db_connection, name, birthday, gender, fetish):
     assert row[0] == name            # имя
     assert str(row[1]) == birthday   # дата (привели к строке)
     assert row[2] == gender          # пол
-    assert row[3] == fetish          # фетиш
+    assert row[3] == preference      # фетиш
 
 
 
